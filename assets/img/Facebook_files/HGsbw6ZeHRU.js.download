@@ -1,0 +1,6 @@
+if (self.CavalryLogger) { CavalryLogger.start_js(["72f28"]); }
+
+__d("FBRTCConsoleLogger",["nullthrows","requireCond","Log","LogHistory","cr:1112656"],(function(a,b,c,d,e,f){"use strict";var g=null;a=function(){a.getInstance=function(){g||(g=new a());return g};function a(){this.$1=b("LogHistory").getInstance(a.MODULE_NAME)}var c=a.prototype;c.getLogHistory=function(){return this.$1};c.log=function(a,b,c,d,e){d===void 0&&(d="Console");e===void 0&&(e="DEBUG");e=" "+JSON.stringify({conferenceName:b,callID:c});this.$1.log(d||"Console",a+e);return this};return a}();e.exports=a;a.MODULE_NAME="webrtc"}),null);
+__d("ZenonSDESKeyDetector",[],(function(a,b,c,d,e,f){"use strict";var g=/inline:\s*[0-9a-zA-z+/]{40}(\b|\s|$)/;function a(a){return g.test(JSON.stringify(a))}e.exports=a}),null);
+__d("RtcWebUserActionsDebugFalcoEvent",["FalcoLoggerInternal","getSamplingPolicyConfig_DO_NOT_USE"],(function(a,b,c,d,e,f){"use strict";a=b("getSamplingPolicyConfig_DO_NOT_USE")("falco","rtc_web_user_actions_debug");c=b("FalcoLoggerInternal").create(a);e.exports=c}),null);
+__d("RtcWebUserActionsFalcoEvent",["FalcoLoggerInternal","getSamplingPolicyConfig_DO_NOT_USE"],(function(a,b,c,d,e,f){"use strict";a=b("getSamplingPolicyConfig_DO_NOT_USE")("falco","rtc_web_user_actions");c=b("FalcoLoggerInternal").create(a);e.exports=c}),null);
