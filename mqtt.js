@@ -5,33 +5,13 @@ var client = null;
 var tempData = new Array();
 var connected = false;
 var temperature = -1;
-
+var cnt = 0;
 var toast = document.querySelector(".toast");
 var btn = document.querySelector(".toast-btn");
 var close = document.querySelector(".toast-close");
 var progress = document.querySelector(".progress-toast");
 var text1 = document.querySelector('.text-1');
 var text2 = document.querySelector('.text-2');
-
-jQuery.noConflict();
-
-function makeid() {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (var i = 0; i < 15; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-    return "client_" + text;
-}
-
-document.querySelector('#clientId').value = makeid();
-
-// function logging(title, msg) {
-//     var date = new Date();
-//     $("#log").prepend(date.toString() + " - " + title + ":\n"
-//         + msg + "\n"
-//         + "========\n");
-// }
 
 function toastActive() {
     toast.classList.add("active");
@@ -53,20 +33,42 @@ close.addEventListener("click", () => {
         progress.classList.remove("active");
     }, 300)
 })
+
+jQuery.noConflict();
+
+function makeid() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 15; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return "client_" + text;
+}
+
+document.querySelector('#clientId').value = makeid();
+
+function logging(title, msg) {
+    var date = new Date();
+    jQuery("#log").prepend(date.toString() + " - " + title + ":\n"
+        + msg + "\n"
+        + "========\n");
+}
+
 function disconnect() {
     client.disconnect();
-    text1.textContent = "Disconnected Successfully"
+    text1.textContent = "Disconnected Successfully";
     toastActive();
+    connected = false;
     document.querySelector(".connect-btn").classList.remove("hide");
     document.querySelector(".disconnect-btn").classList.add("hide");
-    //msg = " [Information] | clientId=" + client.clientId;
-    //title = "Disconnected Successfully";
-    //logging(title, msg);
+    msg = " [Information] | clientId=" + client.clientId;
+    title = "Disconnected Successfully";
+    logging(title, msg);
 }
 
 //document.addEventListener('DOMContentLoaded', function () {
 function subscribe(topic, qos) {
-    const Id = jQuery("tbody#topiclist");
+    const Id = jQuery("#topiclist");
     var id = Id.children("tr:last-child").attr("id");
     if (id == undefined) {
         id = 1;
@@ -108,18 +110,18 @@ function subscribe(topic, qos) {
             gqosobj.innerText = context.grantedQos;
         }
 
-        // msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
-        //     + ", QoS=" + context.invocationContext.qos + ", grantedQoS=" + context.grantedQos;
-        // title = "SUBSCRIBE succeeded";
-        // logging(title, msg);
+        msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
+            + ", QoS=" + context.invocationContext.qos + ", grantedQoS=" + context.grantedQos;
+        title = "SUBSCRIBE succeeded";
+        logging(title, msg);
     }
 
     function onSubFail(context) {
-        // msg = " [Subscription Infomation] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
-        //     + ", QoS=" + context.invocationContext.qos + ", errorCode=" + context.errorCode
-        //     + ", errorMessage=" + context.errorMessage;
-        // title = "SUBSCRIBE failed";
-        // logging(title, msg);
+        msg = " [Subscription Infomation] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
+            + ", QoS=" + context.invocationContext.qos + ", errorCode=" + context.errorCode
+            + ", errorMessage=" + context.errorMessage;
+        title = "SUBSCRIBE failed";
+        logging(title, msg);
     }
 }
 //});
@@ -144,17 +146,16 @@ function unsubscribe(id) {
     function onUnsubSucc(context) {
         //layer.msg('Unsubscribe succeeded', { icon: 1, offset: 200 });
         jQuery("#" + context.invocationContext.id).remove();
-        //msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic;
-        // title = "UNSUBSCRIBE succeeded";
-        // logging(title, msg);
+        msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic;
+        title = "UNSUBSCRIBE succeeded";
+        logging(title, msg);
     }
 
     function onUnsubFail(context, errorCode, errorMessage) {
-        // layer.msg('Unsubscribe failed', { icon: 2, offset: 200 });
-        // msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
-        //     + ", errorCode=" + context.errorCode + ", errorMessage=" + context.errorMessage;
-        // title = "UNSUBSCRIBE Fail";
-        // logging(title, msg);
+        msg = " [Subscription information] | clientId= " + context.invocationContext.clientId + ", topicFilter=" + topic
+            + ", errorCode=" + context.errorCode + ", errorMessage=" + context.errorMessage;
+        title = "UNSUBSCRIBE Fail";
+        logging(title, msg);
     }
 }
 
@@ -216,38 +217,77 @@ form.addEventListener('submit', function (events) {
 
     client.connect(options);
 
+    var msg = " [Server] | " + hostname + ":" + port + suburl + "\n"
+        + " [Account] | username=" + username + ", password=" + password + ", clientId" + clientId + "\n"
+        + " [Parameters] | timeout=" + timeout + ", keepalive=" + keepalive + ", cleansession=" + cleansession
+        + ", ssl=" + ssl + ", reconnect=" + reconnect + ", mqttversion=" + mqttversion;
+
+    title = "CONNECT Initiate a connect operation";
+    logging(title, msg);
     // called when the client connects
     function onSuccess(context) {
-        //var connectionString = context.invocationContext.host + ":" + context.invocationContext.port + context.invocationContext.path;
         document.querySelector(".connect-btn").classList.add("hide");
         document.querySelector(".disconnect-btn").classList.remove("hide");
-        connected = true;
         text1.textContent = "Connected Successfully"
         toastActive();
+        connected = true;
+        msg = " [Infomation] | clientId=" + context.invocationContext.clientId;
+        title = "CONNECT SUCCEEDED";
+        logging(title, msg);
 
     }
 
 
     function onFailure(context) {
-        //             console.log(context)
-        //             layer.msg('Connection failed', { icon: 2, offset: 200 });
-        //             connected = false;
-        //             msg = " [Infomation] | clientId=" + context.invocationContext.clientId
-        //                 + ", errorCode=" + context.errorCode + ", errorMessage=" + context.errorMessage;
-        //             title = "CONNECT failed";
-        //             logging(title, msg);
+        console.log(context)
+        connected = false;
+        msg = " [Infomation] | clientId=" + context.invocationContext.clientId
+            + ", errorCode=" + context.errorCode + ", errorMessage=" + context.errorMessage;
+        title = "CONNECT failed";
+        logging(title, msg);
     }
 
-    function onConnectionLost() {
-
+    function onConnectionLost(context) {
+        if (context.errorCode !== 0) {
+            msg = " [error] | errorCode=" + context.errorCode + ", errorMessage=" + context.errorMessage;
+            title = "CONNECT error";
+            logging(title, msg);
+        }
+        connected = false;
     }
 
-    function onMessageArrived() {
+    function onMessageArrived(message) {
+        var date = new Date();
 
+        var payload = message.payloadString;
+        jQuery("#rcv").prepend(date.toString() + " - " + "Received the news" + ":\n"
+            + " [Received the news] | topic=" + message.destinationName + ", QoS=" + message.qos
+            + ", retained=" + message.retained + ", duplicate=" + message.duplicate
+            + ", payload=" + message.payloadString + "\n"
+            + "========\n");
+        cnt = Number(cnt) + Number(1);
+        document.querySelector(".message-count").textContent = String(Number(cnt));
+        console.log(" Message payload: " + payload);
+        temperature = parseInt(message.payloadString);
+        // tempData.push({
+        //     "timestamp": Date().slice(16, 21),
+        //     "temperature": parseInt(payload)
+        // });
+        // if (tempData.length >= 10) {
+        //     tempData.shift()
+        // }
+        var element1 = document.getElementById('t1');
+        element1.innerText = payload;
+
+        //drawChart(tempData)
     }
 
-    function onMessageDelivered() {
-
+    function onMessageDelivered(message) {
+        msg = " [Message] | topic=" + message.destinationName + ", QoS=" + message.qos
+            + ", retained=" + message.retained + ", duplicate=" + message.duplicate
+            + ", payload=" + message.payloadString;
+        title = "PUBLISH Successfully";
+        logging(title, msg);
     }
 
 });
